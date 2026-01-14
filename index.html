@@ -9,13 +9,20 @@
     <title>Nebula Experiences</title>
     <meta name="description" content="Immersive cosmic experiences that transcend reality. Enter the Nebula." />
     
-    <!-- PRELOAD ALL CRITICAL ASSETS FOR INSTANT FCP -->
-    <link rel="preload" href="/images/feature-immersive.png" as="image" type="image/png" />
-    <link rel="preload" href="/images/feature-events.png" as="image" type="image/png" />
-    <link rel="preload" href="/images/feature-community.png" as="image" type="image/png" />
-    <link rel="preload" href="/images/nebula-abstract-1.png" as="image" type="image/png" />
-    <link rel="preload" href="/images/nebula-abstract-2.png" as="image" type="image/png" />
+    <!-- INSTANT FCP: Preload all WebP images -->
+    <link rel="preload" href="/images/feature-immersive.webp" as="image" type="image/webp" />
+    <link rel="preload" href="/images/feature-events.webp" as="image" type="image/webp" />
+    <link rel="preload" href="/images/feature-community.webp" as="image" type="image/webp" />
+    <link rel="preload" href="/images/nebula-abstract-1.webp" as="image" type="image/webp" />
+    <link rel="preload" href="/images/nebula-abstract-2.webp" as="image" type="image/webp" />
     <link rel="preload" href="/images/NEBULA.png" as="image" type="image/png" />
+    
+    <!-- Preload tiny blur placeholders for instant display -->
+    <link rel="preload" href="/images/feature-immersive-placeholder.jpg" as="image" />
+    <link rel="preload" href="/images/feature-events-placeholder.jpg" as="image" />
+    <link rel="preload" href="/images/feature-community-placeholder.jpg" as="image" />
+    <link rel="preload" href="/images/nebula-abstract-1-placeholder.jpg" as="image" />
+    <link rel="preload" href="/images/nebula-abstract-2-placeholder.jpg" as="image" />
     
     <!-- Preconnect to Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -24,7 +31,7 @@
     <!-- Preload fonts with display=swap for instant text rendering -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     
-    <!-- CRITICAL CSS: Inlined for instant FCP -->
+    <!-- CRITICAL CSS: Inlined for instant FCP - NO FLASH -->
     <style>
       /* Instant dark background - no flash */
       html, body, #root {
@@ -34,16 +41,16 @@
         min-height: 100vh;
         overflow-x: hidden;
         color: white;
-        font-family: 'Space Grotesk', sans-serif;
+        font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
       }
       
-      /* Prevent FOUC */
+      /* Prevent FOUC - Force visibility */
       html {
-        visibility: visible;
-        opacity: 1;
+        visibility: visible !important;
+        opacity: 1 !important;
       }
       
-      /* GPU acceleration classes */
+      /* GPU acceleration for smooth animations */
       .gpu-accelerated {
         transform: translateZ(0);
         backface-visibility: hidden;
@@ -56,12 +63,25 @@
         visibility: visible;
       }
       
-      /* Preload image containers - prevent layout shift */
+      /* Image optimization - prevent layout shift */
       img {
         content-visibility: auto;
+        contain-intrinsic-size: 400px 400px;
+      }
+      
+      /* Blur placeholder base styles */
+      .blur-placeholder {
+        filter: blur(20px);
+        transform: scale(1.1);
+        transition: filter 0.3s ease, transform 0.3s ease;
+      }
+      
+      .blur-placeholder.loaded {
+        filter: blur(0);
+        transform: scale(1);
       }
     </style>
-    <script type="module" crossorigin src="/assets/index-omXzcE89.js"></script>
+    <script type="module" crossorigin src="/assets/index-DWLS6Ktx.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/style-BixcIe0N.css">
   </head>
 
@@ -128,21 +148,38 @@ Error generating stack: `+l.message+`
 
     <div id="root"></div>
     
-    <!-- Prefetch remaining images after initial load -->
+    <!-- Eager load all images immediately for instant FCP -->
     <script>
-      // Eager load all images immediately
-      const images = [
-        '/images/feature-immersive.png',
-        '/images/feature-events.png', 
-        '/images/feature-community.png',
-        '/images/nebula-abstract-1.png',
-        '/images/nebula-abstract-2.png',
-        '/images/NEBULA.png'
-      ];
-      images.forEach(src => {
-        const img = new Image();
-        img.src = src;
-      });
+      // Preload all images immediately on page load
+      (function() {
+        const images = [
+          '/images/feature-immersive.webp',
+          '/images/feature-events.webp', 
+          '/images/feature-community.webp',
+          '/images/nebula-abstract-1.webp',
+          '/images/nebula-abstract-2.webp',
+          '/images/NEBULA.png',
+          '/images/feature-immersive-placeholder.jpg',
+          '/images/feature-events-placeholder.jpg',
+          '/images/feature-community-placeholder.jpg',
+          '/images/nebula-abstract-1-placeholder.jpg',
+          '/images/nebula-abstract-2-placeholder.jpg'
+        ];
+        
+        // Use requestIdleCallback for non-blocking preload
+        const preloadImages = () => {
+          images.forEach(src => {
+            const img = new Image();
+            img.src = src;
+          });
+        };
+        
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(preloadImages, { timeout: 100 });
+        } else {
+          setTimeout(preloadImages, 0);
+        }
+      })();
     </script>
   </body>
 
